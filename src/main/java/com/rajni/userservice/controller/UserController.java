@@ -2,6 +2,8 @@ package com.rajni.userservice.controller;
 
 import com.rajni.userservice.dto.UserDTO;
 import com.rajni.userservice.entities.User;
+import com.rajni.userservice.exception.ResourceNotFoundException;
+import com.rajni.userservice.exception.model.ErrorModel;
 import com.rajni.userservice.service.UserService;
 import com.rajni.userservice.util.UserEntityDTOAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,18 +42,17 @@ public class UserController {
             UserDTO createdObject = userEntityDTOAdapter.convertFrom(user);
             return new ResponseEntity<>(createdObject, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        throw new ResourceNotFoundException();
     }
 
     @GetMapping(value = "/user/{userID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> findUser(@PathVariable("userID") int userID) {
-        ResponseEntity<UserDTO> responseEntity = new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         User user = userService.getUserByID(userID);
         if (user != null) {
             UserDTO createdObject = userEntityDTOAdapter.convertFrom(user);
-            responseEntity = new ResponseEntity<>(createdObject, HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(createdObject, HttpStatus.ACCEPTED);
         }
-        return responseEntity;
+        throw new ResourceNotFoundException();
     }
 
     @GetMapping("/users")
@@ -74,7 +75,7 @@ public class UserController {
                 return new ResponseEntity<>(updatedObject, HttpStatus.OK);
             }
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        throw new ResourceNotFoundException();
     }
 
     @DeleteMapping(value = "/user/{userID}", produces = MediaType.APPLICATION_JSON_VALUE)
